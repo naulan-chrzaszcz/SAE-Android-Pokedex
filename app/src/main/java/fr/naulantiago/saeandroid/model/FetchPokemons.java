@@ -1,18 +1,16 @@
 package fr.naulantiago.saeandroid.model;
 
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import okhttp3.Call;
@@ -22,94 +20,72 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class FetchPokemons {
+    private static final String API = "https://pokebuildapi.fr/api/v1/pokemon/generation/1";
 
-    private List<PokemonData> pokemonData;
-    Set<PokemonTypeData> pokemonTypes;
-    private int status;
-    private OkHttpClient client;
+    private final List<PokemonData> pkmDatas;
+    private final Set<PokemonTypeData> pkmTypes;
+    private final OkHttpClient client;
 
-    public FetchPokemons(){
-        pokemonData = new ArrayList<>();
-        pokemonTypes = new HashSet<>();
-        client = new OkHttpClient();
+    public FetchPokemons() {
+        this.pkmDatas = new ArrayList<>();
+        this.pkmTypes = new HashSet<>();
+        this.client = new OkHttpClient();
 
-        Request request = new Request.Builder()
-                .url("https://pokebuildapi.fr/api/v1/pokemon/generation/1")
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                status = -1;
-            }
-            @Override
+        this.client.newCall(new Request.Builder()
+                .url(API)
+                .build()).enqueue(new Callback() {
+            public void onFailure(Call call, IOException e) {}
+
             public void onResponse(Call call, Response response) throws IOException {
-                status = 1;
-                String responseBody = response.body().string();
-                ObjectMapper objectMapper = new ObjectMapper();
-                ArrayList<LinkedHashMap<String,Object>> data = objectMapper.readValue(responseBody, ArrayList.class);
-                initTypes((ArrayList<LinkedHashMap<String, Object>>) data.get(0).get("apiResistances"));
+                if (response.body() != null) {
+                    JsonNode data = new ObjectMapper().readTree(response.body().string());
+                    initTypes(data.get(0).get("apiResistances"));
 
-                for (int i = 0; i < data.size(); i++) {
-                    storeData(data.get(i));
+                    for (int i = 0; i < data.size(); i++)
+                        storeData(data.get(i));
                 }
             }
         });
     }
 
-    private void storeData(LinkedHashMap<String,Object> pokemon) {
-
-        LinkedHashMap<String,Integer> stats = (LinkedHashMap<String, Integer>) pokemon.get("stats");
-        ArrayList<LinkedHashMap<String,String>> typesMap = (ArrayList<LinkedHashMap<String, String>>) pokemon.get("apiTypes");
-        ArrayList<LinkedHashMap<String, Object>> resistancesMap =  (ArrayList<LinkedHashMap<String, Object>>) pokemon.get("apiResistances");
-        ArrayList<LinkedHashMap<String, Object>> evolutionMap =  (ArrayList<LinkedHashMap<String, Object>>) pokemon.get("apiEvolutions");
-
-
-        ArrayList<PokemonTypeData> pokemonType = new ArrayList<>();
-        ArrayList<PokemonTypeResistancesData> pokemonTypeResistances = new ArrayList<>();
-        ArrayList<Integer> pokemonEvolutions = new ArrayList<>();
-
-        int id = (int) pokemon.get("pokedexId");
-        String name = (String) pokemon.get("name");
-        Bitmap sprite = getImage((String) pokemon.get("sprite"));
-        int hp = stats.get("HP");
-        int attack = stats.get("attack");
-        int defense = stats.get("defense");
-        int special_attack = stats.get("special_attack");
-        int special_defense = stats.get("special_defense");
-        int speed = stats.get("speed");
-
-        // evolution aussi
-        typesMap.forEach(type -> {
-            String typeName = type.get("name");
-
-            PokemonTypeData typeData = getType(typeName);
+    /** @param pkm Pokemon JSON data */
+    private void storeData(JsonNode pkm) {
+        List<PokemonTypeData> pkmTypes = new ArrayList<>();
+        pkm.get("apiTypes").forEach(type -> {
+            PokemonTypeData typeData = getType(type.get("name").asText());
             if (!typeData.hasImage())
-                typeData.setImage(getImage(type.get("image")));
-            pokemonType.add(typeData);
+                typeData.setImage(getImage(type.get("image").asText()));
+            pkmTypes.add(typeData);
         });
 
-        resistancesMap.forEach(resistance -> {
-            String typeName = (String) resistance.get("name");
-            double damage_multiplier;
-            if (resistance.get("damage_multiplier") instanceof Integer)
-                damage_multiplier = ((Integer) resistance.get("damage_multiplier")).doubleValue();
-            else
-                damage_multiplier = (double) resistance.get("damage_multiplier");
-            PokemonTypeData typeData = getType(typeName);
-            pokemonTypeResistances.add(new PokemonTypeResistancesData(typeData,damage_multiplier));
+        List<PokemonTypeResistancesData> pkmTypeResistances = new ArrayList<>();
+        pkm.get("apiResistances").forEach(r -> {
+            PokemonTypeData typeData = getType(r.get("name").asText());
+            double dmgMultiplier = r.get("damage_multiplier").asDouble();
+            pkmTypeResistances.add(new PokemonTypeResistancesData(typeData, dmgMultiplier));
         });
 
-        evolutionMap.forEach(evolution -> {
-            int evolutionId = (int) evolution.get("pokedexId");
-            pokemonEvolutions.add(evolutionId);
-        });
+        List<Integer> pkmEvolutions = new ArrayList<>();
+        pkm.get("apiEvolutions").forEach(e -> pkmEvolutions.add(e.get("pokedexId").asInt()));
 
-        this.pokemonData.add(new PokemonData(id,pokemonEvolutions,name,sprite,hp,attack,defense,special_attack,special_defense,speed,pokemonTypeResistances,pokemonType));
+        JsonNode stats = pkm.get("stats");
+        this.pkmDatas.add(new PokemonData(pkm.get("pokedexId").asInt(),
+                                          pkmEvolutions,
+                                          pkm.get("name").asText(),
+                                          getImage(pkm.get("sprite").asText()),
+                                          stats.get("HP").asInt(),
+                                          stats.get("attack").asInt(),
+                                          stats.get("defense").asInt(),
+                                          stats.get("special_attack").asInt(),
+                                          stats.get("special_defense").asInt(),
+                                          stats.get("speed").asInt(),
+                                          pkmTypeResistances,
+                                          pkmTypes));
     }
 
     private Bitmap getImage(String link) {
         Request request = new Request.Builder().url(link).build();
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = this.client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             InputStream inputStream = response.body().byteStream();
@@ -119,19 +95,21 @@ public class FetchPokemons {
         }
     }
 
-    private void initTypes(ArrayList<LinkedHashMap<String,Object>> types) {
+    private void initTypes(JsonNode types) {
         int id = 1;
-        for (LinkedHashMap<String, Object> type : types) {
-            String name = (String) type.get("name");
-            this.pokemonTypes.add(new PokemonTypeData(PokemonTypes.valueOf(name),id));
-            id ++;
+        for (JsonNode type : types) {
+            String name = type.get("name").asText();
+            this.pkmTypes.add(new PokemonTypeData(PokemonTypes.valueOf(name), id));
+            id++;
         }
     }
 
     private PokemonTypeData getType(String name) {
         // faire quelque chose avec l'optional s'il ne trouve rien idk quoi alors je laisse la .get pour l'instant
-        return this.pokemonTypes.stream().filter(el -> el.getName().name().equals(name)).findFirst().get();
+        return pkmTypes.stream().filter(el -> el.getName().name().equals(name)).findFirst().get();
     }
 
-    public List<PokemonData> getPokemonData() { return  this.pokemonData; }
+    public List<PokemonData> getPokemonDatas() {
+        return this.pkmDatas;
+    }
 }

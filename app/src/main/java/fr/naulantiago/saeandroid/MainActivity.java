@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mTableLayout = findViewById(R.id.tablePokedex);
         FetchPokemons toast = new FetchPokemons();
-        System.out.println(toast.getPokemonData());
+        System.out.println(toast.getPokemonDatas());
     }
 
     private void addPokemonsToTable() {
