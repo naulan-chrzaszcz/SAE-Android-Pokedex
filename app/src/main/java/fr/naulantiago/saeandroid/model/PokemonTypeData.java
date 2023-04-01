@@ -1,23 +1,26 @@
 package fr.naulantiago.saeandroid.model;
 
-import java.sql.Blob;
+import android.graphics.Bitmap;
 
 public class PokemonTypeData
 {
+    private final int id;
     private final PokemonTypes name;
-    private final Blob img;
+    private Bitmap img;
 
     public PokemonTypeData(final PokemonTypes name,
-                           final Blob img) {
+                           final int id) {
         this.name = name;
-        this.img = img;
+        this.id = id;
     }
 
     public PokemonTypes getName() {
         return name;
     }
 
-    public Blob getImg() {
+    public Bitmap getImg() {
         return img;
     }
+    public boolean hasImage() { return img == null; }
+    public void setImage(Bitmap image) { this.img = image; }
 }

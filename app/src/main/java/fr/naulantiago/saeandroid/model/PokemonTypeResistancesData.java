@@ -10,11 +10,11 @@ public class PokemonTypeResistancesData
         TWICE_RESISTANT;
     }
 
-    private final PokemonTypes types;
+    private final PokemonTypeData types;
     private final double damageMultiplier;
     private DamageRelation damageRelation = DamageRelation.NEUTRAL;
 
-    public PokemonTypeResistancesData(final PokemonTypes types,
+    public PokemonTypeResistancesData(final PokemonTypeData types,
                                       final double damageMultiplier) {
         this.types = types;
         this.damageMultiplier = damageMultiplier;
@@ -30,7 +30,7 @@ public class PokemonTypeResistancesData
         }
     }
 
-    public PokemonTypes getTypes() {
+    public PokemonTypeData getTypes() {
         return types;
     }
 

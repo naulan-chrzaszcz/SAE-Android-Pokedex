@@ -1,14 +1,14 @@
 package fr.naulantiago.saeandroid.model;
 
-import java.sql.Blob;
+import android.graphics.Bitmap;
 import java.util.List;
 
 public class PokemonData
 {
     private final int id;
-    private final int evolutionId;
+    private final List<Integer> evolutionId;
     private final String name;
-    private final Blob sprite;
+    private final Bitmap sprite;
     // stats
     private final int hp;
     private final int attack;
@@ -19,16 +19,19 @@ public class PokemonData
     // types
     private final List<PokemonTypeData> types;
 
+    private final List<PokemonTypeResistancesData> resistances;
+
     public PokemonData(final int id,
-                       final int evolutionId,
+                       final List<Integer> evolutionId,
                        final String name,
-                       final Blob sprite,
+                       final Bitmap sprite,
                        final int hp,
                        final int attack,
                        final int defense,
                        final int special_attack,
                        final int special_defense,
                        final int speed,
+                       final List<PokemonTypeResistancesData> resistances,
                        final List<PokemonTypeData> types) {
         this.id = id;
         this.evolutionId = evolutionId;
@@ -41,13 +44,14 @@ public class PokemonData
         this.special_defense = special_defense;
         this.speed = speed;
         this.types = types;
+        this.resistances = resistances;
     }
 
     public int getId() {
         return id;
     }
 
-    public int getEvolutionId() {
+    public List<Integer> getEvolutionId() {
         return evolutionId;
     }
 
@@ -55,7 +59,7 @@ public class PokemonData
         return name;
     }
 
-    public Blob getSprite() {
+    public Bitmap getSprite() {
         return sprite;
     }
 
