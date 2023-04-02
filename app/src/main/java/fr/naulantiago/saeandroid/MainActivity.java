@@ -7,6 +7,7 @@ import android.widget.TableLayout;
 
 import java.util.List;
 
+import fr.naulantiago.saeandroid.model.Database;
 import fr.naulantiago.saeandroid.model.FetchPokemons;
 import fr.naulantiago.saeandroid.model.PokemonData;
 
@@ -20,20 +21,12 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
         this.mTableLayout = findViewById(R.id.tablePokedex);
-
-        FetchPokemons toast = new FetchPokemons();
-        this.pokemonData = toast.getPokemonDatas();
-        System.out.println(this.pokemonData);
+        Database db = new Database(this);
+        System.out.println(db.query());
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
-        this.addPokemonsToTable();
-    }
-
-    private void addPokemonsToTable() {
-
     }
 }

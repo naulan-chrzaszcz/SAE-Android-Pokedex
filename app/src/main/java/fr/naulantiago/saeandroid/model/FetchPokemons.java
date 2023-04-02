@@ -20,21 +20,28 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class FetchPokemons {
-    private static final String API = "https://pokebuildapi.fr/api/v1/pokemon/generation/1";
+    private StatusCallback callback;
+    private static final String API = "https://pokebuildapi.fr/api/v1/pokemon";
 
     private final List<PokemonData> pkmDatas;
+
+    private int status;
     private final Set<PokemonTypeData> pkmTypes;
     private final OkHttpClient client;
 
-    public FetchPokemons() {
+    public FetchPokemons(StatusCallback callback) {
+        this.callback = callback;
         this.pkmDatas = new ArrayList<>();
         this.pkmTypes = new HashSet<>();
         this.client = new OkHttpClient();
+        this.status = 0;
 
         this.client.newCall(new Request.Builder()
                 .url(API)
                 .build()).enqueue(new Callback() {
-            public void onFailure(Call call, IOException e) {}
+            public void onFailure(Call call, IOException e) {
+                callback.statusChange(-1);
+            }
 
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.body() != null) {
@@ -43,6 +50,7 @@ public class FetchPokemons {
 
                     for (int i = 0; i < data.size(); i++)
                         storeData(data.get(i));
+                    callback.statusChange(1);
                 }
             }
         });
@@ -85,6 +93,7 @@ public class FetchPokemons {
 
     private Bitmap getImage(String link) {
         Request request = new Request.Builder().url(link).build();
+        System.out.println(link);
         try (Response response = this.client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
@@ -106,10 +115,14 @@ public class FetchPokemons {
 
     private PokemonTypeData getType(String name) {
         // faire quelque chose avec l'optional s'il ne trouve rien idk quoi alors je laisse la .get pour l'instant
-        return pkmTypes.stream().filter(el -> el.getName().name().equals(name)).findFirst().get();
+        return pkmTypes.stream().filter(el -> el.getType().name().equals(name)).findFirst().get();
     }
 
     public List<PokemonData> getPokemonDatas() {
         return this.pkmDatas;
+    }
+
+    public Set<PokemonTypeData> getPkmTypes() {
+        return pkmTypes;
     }
 }

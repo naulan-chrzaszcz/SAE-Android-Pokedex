@@ -51,7 +51,7 @@ public class PokemonData
         return id;
     }
 
-    public List<Integer> getEvolutionId() {
+    public List<Integer> getEvolutions() {
         return evolutionId;
     }
 
@@ -89,5 +89,9 @@ public class PokemonData
 
     public List<PokemonTypeData> getTypes() {
         return types;
+    }
+
+    public List<PokemonTypeResistancesData> getResistances() {
+        return resistances;
     }
 }
