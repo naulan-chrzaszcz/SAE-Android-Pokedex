@@ -65,7 +65,6 @@ public class Database extends SQLiteOpenHelper {
         db.execSQL(script_resistances);
     }
 
-
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("");
