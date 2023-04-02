@@ -7,10 +7,12 @@ import android.widget.TableLayout;
 
 import java.util.List;
 
+import fr.naulantiago.saeandroid.model.Database;
 import fr.naulantiago.saeandroid.model.FetchPokemons;
 import fr.naulantiago.saeandroid.model.PokemonData;
 
 public class MainActivity extends AppCompatActivity {
+    private Database db;
     private TableLayout mTableLayout;
     private List<PokemonData> pokemonData;
 
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         this.mTableLayout = findViewById(R.id.tablePokedex);
 
+        this.db = new Database(this);
         FetchPokemons toast = new FetchPokemons();
         this.pokemonData = toast.getPokemonDatas();
         System.out.println(this.pokemonData);
