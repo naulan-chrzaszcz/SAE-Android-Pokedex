@@ -12,17 +12,18 @@ import fr.naulantiago.saeandroid.model.FetchPokemons;
 import fr.naulantiago.saeandroid.model.PokemonData;
 
 public class MainActivity extends AppCompatActivity {
+    private Database db;
     private TableLayout mTableLayout;
-    private List<PokemonData> pokemonData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
         this.mTableLayout = findViewById(R.id.tablePokedex);
-        Database db = new Database(this);
-        System.out.println(db.query());
+        this.db = new Database(this);
+        System.out.println(this.db.query());
+
+        
     }
 
     @Override
