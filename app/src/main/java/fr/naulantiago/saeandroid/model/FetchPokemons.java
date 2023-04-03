@@ -21,7 +21,7 @@ import okhttp3.Response;
 
 public class FetchPokemons {
     private StatusCallback callback;
-    private static final String API = "https://pokebuildapi.fr/api/v1/pokemon";
+    private static final String API = "https://pokebuildapi.fr/api/v1/pokemon/generation/1";
 
     private final List<PokemonData> pkmDatas;
 
