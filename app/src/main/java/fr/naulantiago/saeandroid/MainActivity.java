@@ -1,17 +1,14 @@
 package fr.naulantiago.saeandroid;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.widget.TableLayout;
 
-import java.util.List;
+import androidx.appcompat.app.AppCompatActivity;
 
 import fr.naulantiago.saeandroid.model.Database;
-import fr.naulantiago.saeandroid.model.FetchPokemons;
-import fr.naulantiago.saeandroid.model.PokemonData;
+import fr.naulantiago.saeandroid.model.StatusCallback;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements StatusCallback {
     private Database db;
     private TableLayout mTableLayout;
 
@@ -20,14 +17,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.mTableLayout = findViewById(R.id.tablePokedex);
-        this.db = new Database(this);
+        this.db = new Database(this, this);
         System.out.println(this.db.query());
-
-        
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+    }
+
+    @Override
+    public void statusChange(int status) {
+        if (status == 1) {
+            System.out.println(this.db.query());
+        } else {
+            // faire un truc qui handle l'error je suppose
+        }
     }
 }

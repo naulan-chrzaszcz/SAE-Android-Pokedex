@@ -1,6 +1,7 @@
 package fr.naulantiago.saeandroid.model;
 
 import android.graphics.Bitmap;
+
 import java.util.List;
 
 public class PokemonData

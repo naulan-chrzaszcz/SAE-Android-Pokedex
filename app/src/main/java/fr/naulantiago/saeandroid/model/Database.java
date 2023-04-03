@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
@@ -16,6 +15,7 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     private List<PokemonData> pokemonDatas;
     private Set<PokemonTypeData> pokemonTypes;
     private FetchPokemons pokemonAPI;
+    private StatusCallback callBack;
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "pokedex";
@@ -44,8 +44,9 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     private static final String COLUMN_EVOLUTIONS_PKM_EVOLUTION = "pokemon_id_pkm_evolution";
 
 
-    public Database(Context context) {
+    public Database(Context context, StatusCallback statusCallback) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.callBack = statusCallback;
     }
 
     @Override
@@ -72,8 +73,6 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
                 " FOREIGN KEY (" + COLUMN_POKEMON_TYPE1 + ") REFERENCES " + TABLE_TYPE + "(" + COLUMN_TYPE_ID + ")," +
                 " FOREIGN KEY (" + COLUMN_POKEMON_TYPE2 + ") REFERENCES " + TABLE_TYPE + "(" + COLUMN_TYPE_ID + ")" +
                 ")";
-
-
 
         String script_resistances = "CREATE TABLE IF NOT EXISTS " + TABLE_RESISTANCE + "(" +
                 COLUMN_RESISTANCE_POKEMON_ID + " INTEGER," +
@@ -116,14 +115,15 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
         for (int pkmId = this.pokemonDatas.size() - 1; pkmId >= 0; pkmId--) {
             insertPokemons(this.pokemonDatas.get(pkmId), db);
         }
-
+        callBack.statusChange(1);
         db.close();
     }
 
     private void insertTypes(SQLiteDatabase db) {
         for (PokemonTypeData pokemonType : this.pokemonTypes) {
-
-            byte[] byteArray = getByteArray(pokemonType.getImg());
+            byte[] byteArray = null;
+            if (pokemonType.hasImage())
+                byteArray = getByteArray(pokemonType.getImg());
             ContentValues values = new ContentValues();
             values.put(COLUMN_TYPE_ID, pokemonType.getId());
             values.put(COLUMN_TYPE_IMAGE, byteArray);
@@ -188,15 +188,21 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     public String query() {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_POKEMON, new String[] {COLUMN_POKEMON_NAME},null, null, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            return cursor.getString(0);
-        }
-        return null;
+        return (cursor != null && cursor.moveToFirst()) ? cursor.getString(0) : null;
     }
 
     public byte[] getByteArray(Bitmap bm) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return stream.toByteArray();
+    }
+    @Override
+    public SQLiteDatabase getWritableDatabase() {
+        SQLiteDatabase db = super.getWritableDatabase();
+
+        // si la database ne passe pas par le onCreate ( donc les inserts sont déjà présents )
+        if (this.pokemonAPI == null)
+            this.callBack.statusChange(1);
+        return db;
     }
 }
