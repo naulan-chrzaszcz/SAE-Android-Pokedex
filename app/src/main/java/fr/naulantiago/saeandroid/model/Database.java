@@ -186,6 +186,7 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     }
 
     public String query() {
+        System.out.println("huazhidabziudai");
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_POKEMON, new String[] {COLUMN_POKEMON_NAME},null, null, null, null, null);
         return (cursor != null && cursor.moveToFirst()) ? cursor.getString(0) : null;
