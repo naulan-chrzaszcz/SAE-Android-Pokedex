@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,7 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     private Set<PokemonTypeData> pokemonTypes;
     private FetchPokemons pokemonAPI;
     private StatusCallback callBack;
+    private Context context;
 
     private static final int DATABASE_VERSION = 5;
     private static final String DATABASE_NAME = "pokedex";
@@ -49,11 +51,12 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     public Database(Context context, StatusCallback statusCallback) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.callBack = statusCallback;
+        this.context = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        pokemonAPI = new FetchPokemons(this);
+        pokemonAPI = new FetchPokemons();
 
         String script_type = "CREATE TABLE IF NOT EXISTS " + TABLE_TYPE + "(" +
                 COLUMN_TYPE_ID + " INTEGER PRIMARY KEY," +
@@ -107,8 +110,9 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
         onCreate(db);
     }
 
-    private void initInsert() {
+    public void initInsertIfNewDB() {
         SQLiteDatabase db = this.getWritableDatabase();
+        this.pokemonAPI.waitFetchFinish();
         this.pokemonDatas = this.pokemonAPI.getPokemonDatas();
         this.pokemonTypes = this.pokemonAPI.getPkmTypes();
 
@@ -117,9 +121,14 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
         for (int pkmId = this.pokemonDatas.size() - 1; pkmId >= 0; pkmId--) {
             insertPokemons(this.pokemonDatas.get(pkmId), db);
         }
-        System.out.println(" HERE DB1  : IUABOBOABOADA");
         callBack.statusChange(1);
-        db.close();
+    }
+
+    private void clearDatabase(SQLiteDatabase db) {
+        db.execSQL("DELETE FROM " + TABLE_RESISTANCE );
+        db.execSQL("DELETE FROM " + TABLE_POKEMON);
+        db.execSQL("DELETE FROM " + TABLE_TYPE);
+        db.execSQL("DELETE FROM " + TABLE_EVOLUTIONS);
     }
 
     private void insertTypes(SQLiteDatabase db) {
@@ -131,7 +140,6 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
             values.put(COLUMN_TYPE_ID, pokemonType.getId());
             values.put(COLUMN_TYPE_IMAGE, byteArray);
             values.put(COLUMN_TYPE_NAME, pokemonType.getType().name());
-
             db.insert(TABLE_TYPE, null, values);
         }
     }
@@ -182,9 +190,9 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     @Override
     public void statusChange(int status) {
         if (status == 1 ) {
-            initInsert();
+            initInsertIfNewDB();
         } else if (status == -1) {
-            System.out.println("bruh moment");
+
         }
     }
 
@@ -214,13 +222,10 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     public Bitmap getBitmap(byte[] bytes) {
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
-    @Override
-    public SQLiteDatabase getWritableDatabase() {
-        SQLiteDatabase db = super.getWritableDatabase();
-        System.out.println(" HERE DB 2 : " +  this.pokemonAPI);
-        // si la database ne passe pas par le onCreate ( donc les inserts sont déjà présents )
-        if (this.pokemonAPI == null)
-            this.callBack.statusChange(1);
-        return db;
+
+    public int getNumbersOfPokemons() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_POKEMON, new String[] {COLUMN_POKEMON_ID},null, null, null, null, null);
+        return (cursor != null && cursor.moveToFirst()) ? cursor.getCount() : -1;
     }
 }

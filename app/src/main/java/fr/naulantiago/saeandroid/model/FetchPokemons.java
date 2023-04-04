@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -20,27 +22,29 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class FetchPokemons {
-    private StatusCallback callback;
     private static final String API = "https://pokebuildapi.fr/api/v1/pokemon/generation/1";
 
     private final List<PokemonData> pkmDatas;
 
-    private int status;
+    private AtomicInteger status;
     private final Set<PokemonTypeData> pkmTypes;
     private final OkHttpClient client;
+    private final CountDownLatch latch;
 
-    public FetchPokemons(StatusCallback callback) {
-        this.callback = callback;
+    public FetchPokemons() {
         this.pkmDatas = new ArrayList<>();
         this.pkmTypes = new HashSet<>();
         this.client = new OkHttpClient();
-        this.status = 0;
+        this.status = new AtomicInteger(0);
+
+        latch = new CountDownLatch(1);
 
         this.client.newCall(new Request.Builder()
                 .url(API)
                 .build()).enqueue(new Callback() {
             public void onFailure(Call call, IOException e) {
-                callback.statusChange(-1);
+                status.set(-1);
+                latch.countDown();
             }
 
             public void onResponse(Call call, Response response) throws IOException {
@@ -50,8 +54,11 @@ public class FetchPokemons {
 
                     for (int i = 0; i < data.size(); i++)
                         storeData(data.get(i));
-                    callback.statusChange(1);
+                    status.set(1);
+                    latch.countDown();
                 }
+                client.dispatcher().executorService().shutdown();
+                client.connectionPool().evictAll();
             }
         });
     }
@@ -92,9 +99,7 @@ public class FetchPokemons {
     }
 
     private Bitmap getImage(String link) {
-        System.out.println(link);
         Request request = new Request.Builder().url(link).build();
-        System.out.println(link);
         try (Response response = this.client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
@@ -125,5 +130,15 @@ public class FetchPokemons {
 
     public Set<PokemonTypeData> getPkmTypes() {
         return pkmTypes;
+    }
+
+    public boolean waitFetchFinish() {
+        try {
+            this.latch.await();
+            return true;
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 }

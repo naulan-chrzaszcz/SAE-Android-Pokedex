@@ -1,6 +1,8 @@
 package fr.naulantiago.saeandroid;
 
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -8,12 +10,12 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ContextThemeWrapper;
 
 import java.util.ArrayList;
 
 import fr.naulantiago.saeandroid.model.Database;
 import fr.naulantiago.saeandroid.model.MinimalPokemonInfo;
-import fr.naulantiago.saeandroid.model.PokemonData;
 import fr.naulantiago.saeandroid.model.StatusCallback;
 
 public class MainActivity extends AppCompatActivity implements StatusCallback {
@@ -26,6 +28,11 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
         setContentView(R.layout.activity_main);
         this.mTableLayout = findViewById(R.id.tablePokedex);
         this.db = new Database(this, this);
+        if (db.getNumbersOfPokemons() < 151) {
+            db.initInsertIfNewDB();
+        } else {
+            addPokemon();
+        }
     }
 
     @Override
@@ -43,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     }
 
     public void addPokemon() {
-        System.out.println("beozcjebaocbzeaibeozbvoaibeovbaoze");
         ArrayList<MinimalPokemonInfo> minimalPokemonInfos = this.db.getMinimalPokemonInfos();
         TableRow tr = new TableRow(this);
         for (int index = 0; index < minimalPokemonInfos.size(); index++) {
@@ -54,10 +60,12 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
             // Create a new ImageView to display the bitmap
             ImageView imageView = new ImageView(this);
             imageView.setImageBitmap(minimalPokemonInfos.get(index).getSprite());
+            imageView.setLayoutParams(new LinearLayout.LayoutParams(500,500));
 
             // Create a new TextView to display the text beneath the bitmap
             TextView textView = new TextView(this);
             textView.setText(minimalPokemonInfos.get(index).getName());
+            textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
             // Add the ImageView and TextView to a new nested LinearLayout
             LinearLayout linearLayout = new LinearLayout(this);
