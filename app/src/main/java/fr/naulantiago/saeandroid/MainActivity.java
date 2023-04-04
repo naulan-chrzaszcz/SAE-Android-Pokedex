@@ -1,8 +1,12 @@
 package fr.naulantiago.saeandroid;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -51,6 +55,13 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
 
     public void addPokemon() {
         ArrayList<MinimalPokemonInfo> minimalPokemonInfos = this.db.getMinimalPokemonInfos();
+        WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        Display display = windowManager.getDefaultDisplay();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        display.getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
+
         TableRow tr = new TableRow(this);
         for (int index = 0; index < minimalPokemonInfos.size(); index++) {
             if (index != 0 && index % 2 == 0) {
@@ -60,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
             // Create a new ImageView to display the bitmap
             ImageView imageView = new ImageView(this);
             imageView.setImageBitmap(minimalPokemonInfos.get(index).getSprite());
-            imageView.setLayoutParams(new LinearLayout.LayoutParams(500,500));
+            imageView.setLayoutParams(new LinearLayout.LayoutParams(screenWidth / 2,screenHeight / 5));
 
             // Create a new TextView to display the text beneath the bitmap
             TextView textView = new TextView(this);
