@@ -92,6 +92,7 @@ public class FetchPokemons {
     }
 
     private Bitmap getImage(String link) {
+        System.out.println(link);
         Request request = new Request.Builder().url(link).build();
         System.out.println(link);
         try (Response response = this.client.newCall(request).execute()) {

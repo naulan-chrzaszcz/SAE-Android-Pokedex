@@ -6,8 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +19,7 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     private FetchPokemons pokemonAPI;
     private StatusCallback callBack;
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 5;
     private static final String DATABASE_NAME = "pokedex";
     private static final String TABLE_POKEMON = "table_pokemon";
     private static final String TABLE_TYPE = "table_type";
@@ -115,6 +117,7 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
         for (int pkmId = this.pokemonDatas.size() - 1; pkmId >= 0; pkmId--) {
             insertPokemons(this.pokemonDatas.get(pkmId), db);
         }
+        System.out.println(" HERE DB1  : IUABOBOABOADA");
         callBack.statusChange(1);
         db.close();
     }
@@ -185,11 +188,21 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
         }
     }
 
-    public String query() {
-        System.out.println("huazhidabziudai");
+    public ArrayList<MinimalPokemonInfo> getMinimalPokemonInfos() {
+        ArrayList<MinimalPokemonInfo> minimalPokemonInfos = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_POKEMON, new String[] {COLUMN_POKEMON_NAME},null, null, null, null, null);
-        return (cursor != null && cursor.moveToFirst()) ? cursor.getString(0) : null;
+        Cursor cursor = db.query(TABLE_POKEMON, new String[] {COLUMN_POKEMON_ID,COLUMN_POKEMON_NAME,COLUMN_POKEMON_SPRITE},null, null, null, null, null);
+        if (cursor != null){
+            while (cursor.moveToNext()) {
+                minimalPokemonInfos.add(new MinimalPokemonInfo(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        getBitmap(cursor.getBlob(2))
+                ));
+            }
+            return minimalPokemonInfos;
+        }
+        return null;
     }
 
     public byte[] getByteArray(Bitmap bm) {
@@ -197,10 +210,14 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
         bm.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return stream.toByteArray();
     }
+
+    public Bitmap getBitmap(byte[] bytes) {
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+    }
     @Override
     public SQLiteDatabase getWritableDatabase() {
         SQLiteDatabase db = super.getWritableDatabase();
-
+        System.out.println(" HERE DB 2 : " +  this.pokemonAPI);
         // si la database ne passe pas par le onCreate ( donc les inserts sont déjà présents )
         if (this.pokemonAPI == null)
             this.callBack.statusChange(1);
