@@ -63,9 +63,9 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
         int screenWidth = displayMetrics.widthPixels;
         int screenHeight = displayMetrics.heightPixels;
 
-        TableRow tr = new TableRow(this);
+        TableRow tr = null;
         for (int index = 0; index < minimalPokemonInfos.size(); index++) {
-            if (index != 0 && index % 2 == 0) {
+            if ( index % 2 == 0) {
                 tr = new TableRow(this);
                 this.mTableLayout.addView(tr);
             }
