@@ -1,6 +1,7 @@
 package fr.naulantiago.saeandroid;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -23,7 +24,7 @@ import fr.naulantiago.saeandroid.model.MinimalPokemonInfo;
 import fr.naulantiago.saeandroid.model.StatusCallback;
 
 public class MainActivity extends AppCompatActivity implements StatusCallback {
-    private Database db;
+    public static Database db;
     private TableLayout mTableLayout;
 
     @Override
@@ -83,9 +84,20 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
             linearLayout.setOrientation(LinearLayout.VERTICAL);
             linearLayout.addView(imageView);
             linearLayout.addView(textView);
-
+            linearLayout.setOnClickListener(createOnclickListener(minimalPokemonInfos.get(index).getId()));
             // Add the nested LinearLayout to the TableRow
             tr.addView(linearLayout);
         }
+    }
+
+    private View.OnClickListener createOnclickListener(int id) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent pokemonDescribeIntent = new Intent(MainActivity.this,PokemonDescribeActivity.class);
+                pokemonDescribeIntent.putExtra("id",id);
+                startActivity(pokemonDescribeIntent);
+            }
+        };
     }
 }

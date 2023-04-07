@@ -14,6 +14,13 @@ public class PokemonTypeData
         this.name = name;
         this.id = id;
     }
+    public PokemonTypeData(final PokemonTypes name,
+                           final Bitmap img,
+                           final int id) {
+        this.img = img;
+        this.name = name;
+        this.id = id;
+    }
 
     public PokemonTypes getType() {
         return name;

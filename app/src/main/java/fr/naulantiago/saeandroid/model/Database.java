@@ -51,7 +51,6 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     public Database(Context context, StatusCallback statusCallback) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.callBack = statusCallback;
-        this.context = context;
     }
 
     @Override
@@ -225,7 +224,78 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
 
     public int getNumbersOfPokemons() {
         SQLiteDatabase db = this.getReadableDatabase();
+        int result;
         Cursor cursor = db.query(TABLE_POKEMON, new String[] {COLUMN_POKEMON_ID},null, null, null, null, null);
-        return (cursor != null && cursor.moveToFirst()) ? cursor.getCount() : -1;
+        result = (cursor.moveToFirst()) ? cursor.getCount() : -1;
+        cursor.close();
+        return result;
+    }
+
+    public PokemonData getPokemonData(int pokemonId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        PokemonData returnedPokemon = null;
+        List<Integer> pokemonEvolutions = new ArrayList<>();
+        List<PokemonTypeData> pokemonTypes = new ArrayList<>();
+        List<PokemonTypeResistancesData> pokemonResistances = new ArrayList<>();
+
+        String queryPokemon = "SELECT p.*, t1." + COLUMN_TYPE_NAME + " AS type1, t1." + COLUMN_TYPE_IMAGE + " AS type1Img, t1." + COLUMN_TYPE_ID + " AS type1ID, t2."+COLUMN_TYPE_NAME+" AS type2,  t2."+COLUMN_TYPE_IMAGE+" AS type2Img , t2." + COLUMN_TYPE_ID + " AS type2ID \n" +
+                "FROM "+TABLE_POKEMON+" p\n" +
+                "LEFT JOIN "+TABLE_TYPE+" t1 ON p."+COLUMN_POKEMON_TYPE1+" = t1."+COLUMN_TYPE_ID+"\n" +
+                "LEFT JOIN "+TABLE_TYPE+" t2 ON p."+COLUMN_POKEMON_TYPE2+" = t2."+COLUMN_TYPE_ID+"\n" +
+                "WHERE p."+COLUMN_POKEMON_ID+" = ?\n";
+
+        String queryResistances = "SELECT t."+COLUMN_TYPE_NAME+" , t."+COLUMN_TYPE_ID+" , r."+COLUMN_RESISTANCE_DAMAGE_MULTIPLIER+ " " +
+        "FROM " + TABLE_POKEMON + " p " +
+        "LEFT JOIN " + TABLE_TYPE + " t ON p." + COLUMN_POKEMON_TYPE1 + " = t." + COLUMN_TYPE_ID + " OR p." + COLUMN_POKEMON_TYPE2 + " = t." + COLUMN_TYPE_ID + " " +
+        "LEFT JOIN " + TABLE_RESISTANCE + " r ON p." + COLUMN_POKEMON_ID + " = r." + COLUMN_RESISTANCE_POKEMON_ID + " " +
+        "WHERE p." + COLUMN_POKEMON_ID + " = ?";
+
+        String queryEvolutions = "SELECT " + COLUMN_EVOLUTIONS_PKM_EVOLUTION +
+                " FROM " + TABLE_EVOLUTIONS +
+                " WHERE " + COLUMN_EVOLUTIONS_PKM_BASE + " = ?";
+
+        // getting the evolutions
+
+        final Cursor cursorEvolution = db.rawQuery(queryEvolutions, new String[]{String.valueOf(pokemonId)});
+        while (cursorEvolution.moveToNext()) {
+            pokemonEvolutions.add(cursorEvolution.getInt(0));
+        }
+        cursorEvolution.close();
+
+        // getting the resistances :
+        final Cursor cursorResistances = db.rawQuery(queryResistances, new String[]{String.valueOf(pokemonId)});
+        while (cursorResistances.moveToNext()) {
+            pokemonResistances.add(new PokemonTypeResistancesData(
+                    new PokemonTypeData(PokemonTypes.valueOf(cursorResistances.getString(0)),cursorResistances.getInt(1)),
+                    cursorResistances.getDouble(2)
+            ));
+        }
+        cursorResistances.close();
+
+        // getting the pokemon and creating it
+        final Cursor cursorPokemon = db.rawQuery(queryPokemon, new String[]{String.valueOf(pokemonId)});
+        if (cursorPokemon.moveToFirst()) {
+            returnedPokemon = new PokemonData(
+                    cursorPokemon.getInt(0),
+                    pokemonEvolutions,
+                    cursorPokemon.getString(1),
+                    getBitmap(cursorPokemon.getBlob(2)),
+                    cursorPokemon.getInt(3),
+                    cursorPokemon.getInt(4),
+                    cursorPokemon.getInt(5),
+                    cursorPokemon.getInt(6),
+                    cursorPokemon.getInt(7),
+                    cursorPokemon.getInt(8), // speed
+                    pokemonResistances,
+                    new ArrayList<PokemonTypeData>() {{
+                        add(new PokemonTypeData(PokemonTypes.valueOf(cursorPokemon.getString(11)),getBitmap(cursorPokemon.getBlob(12)),cursorPokemon.getInt(13)));
+                        if (cursorPokemon.getString(14) != null)
+                            add(new PokemonTypeData(PokemonTypes.valueOf(cursorPokemon.getString(14)),getBitmap(cursorPokemon.getBlob(15)),cursorPokemon.getInt(16)));
+                    }}
+            );
+        }
+        cursorPokemon.close();
+        return returnedPokemon;
     }
 }

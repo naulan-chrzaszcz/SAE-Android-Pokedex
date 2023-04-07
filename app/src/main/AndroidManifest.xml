@@ -26,6 +26,9 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+        <activity android:name=".PokemonDescribeActivity">
+
+        </activity>
     </application>
 
 </manifest>
