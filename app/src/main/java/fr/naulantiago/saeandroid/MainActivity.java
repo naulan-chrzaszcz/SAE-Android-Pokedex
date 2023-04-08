@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -15,7 +14,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ContextThemeWrapper;
 
 import java.util.ArrayList;
 
@@ -27,17 +25,18 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     public static Database db;
     private TableLayout mTableLayout;
 
+    public MainActivity() {
+        db = new Database(this, this);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.mTableLayout = findViewById(R.id.tablePokedex);
-        this.db = new Database(this, this);
-        if (db.getNumbersOfPokemons() < 151) {
+        if (db.getNumbersOfPokemons() < 151)
             db.initInsertIfNewDB();
-        } else {
-            addPokemon();
-        }
+        else addPokemon();
     }
 
     @Override
@@ -55,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     }
 
     public void addPokemon() {
-        ArrayList<MinimalPokemonInfo> minimalPokemonInfos = this.db.getMinimalPokemonInfos();
+        ArrayList<MinimalPokemonInfo> minimalPokemonInfos = db.getMinimalPokemonInfos();
         WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -91,13 +90,11 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     }
 
     private View.OnClickListener createOnclickListener(int id) {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent pokemonDescribeIntent = new Intent(MainActivity.this,PokemonDescribeActivity.class);
-                pokemonDescribeIntent.putExtra("id",id);
-                startActivity(pokemonDescribeIntent);
-            }
+        return v -> {
+            Intent pkmDescIntent = new Intent(MainActivity.this,
+                                               PokemonDescribeActivity.class);
+            pkmDescIntent.putExtra("id", id);
+            startActivity(pkmDescIntent);
         };
     }
 }

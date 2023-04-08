@@ -132,13 +132,11 @@ public class FetchPokemons {
         return pkmTypes;
     }
 
-    public boolean waitFetchFinish() {
+    public void waitFetchFinish() {
         try {
             this.latch.await();
-            return true;
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            return false;
         }
     }
 }

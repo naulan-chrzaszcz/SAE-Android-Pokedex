@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -51,12 +50,11 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     public Database(Context context, StatusCallback statusCallback) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.callBack = statusCallback;
+        this.pokemonAPI = new FetchPokemons();
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        pokemonAPI = new FetchPokemons();
-
         String script_type = "CREATE TABLE IF NOT EXISTS " + TABLE_TYPE + "(" +
                 COLUMN_TYPE_ID + " INTEGER PRIMARY KEY," +
                 COLUMN_TYPE_NAME + " VARCHAR(20)," +
