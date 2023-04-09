@@ -32,4 +32,13 @@ public class PokemonTypeData
     public boolean hasImage() { return img != null; }
     public void setImage(Bitmap image) { this.img = image; }
     public int getId() { return this.id; }
+
+    @Override
+    public String toString() {
+        return "PokemonTypeData{" +
+                "id=" + id +
+                ", name=" + name +
+                ", img=" + img +
+                '}';
+    }
 }

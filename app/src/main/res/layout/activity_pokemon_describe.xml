@@ -26,11 +26,11 @@
 
             <ImageView
                 android:id="@+id/sprite"
-                android:layout_width="110dp"
-                android:layout_height="wrap_content"
+                android:layout_width="164dp"
+                android:layout_height="177dp"
                 android:layout_weight="1"
                 android:contentDescription="@string/sprite"
-                tools:srcCompat="@tools:sample/avatars" />
+                tools:srcCompat="@color/black" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -54,7 +54,7 @@
 
                     <TextView
                         android:id="@+id/textView10"
-                        android:layout_width="wrap_content"
+                        android:layout_width="105dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/pokedex_id_n" />
@@ -107,10 +107,10 @@
                     <ImageView
                         android:id="@+id/type_0"
                         android:layout_width="61dp"
-                        android:layout_height="match_parent"
+                        android:layout_height="59dp"
                         android:layout_weight="1"
                         android:contentDescription="@string/type0"
-                        app:srcCompat="@drawable/ic_launcher_background" />
+                        app:srcCompat="@color/black" />
 
                     <Space
                         android:layout_width="24dp"
@@ -120,10 +120,10 @@
                     <ImageView
                         android:id="@+id/type_1"
                         android:layout_width="66dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:contentDescription="@string/type1"
-                        app:srcCompat="@drawable/ic_launcher_background"
+                        app:srcCompat="@color/black"
                         tools:ignore="ImageContrastCheck" />
 
                     <Space

@@ -142,7 +142,6 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     }
 
     private void insertPokemons(PokemonData pkmData, SQLiteDatabase db) {
-
         byte[] byteArray = getByteArray(pkmData.getSprite());
 
         ContentValues values = new ContentValues();
@@ -265,7 +264,7 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
         final Cursor cursorResistances = db.rawQuery(queryResistances, new String[]{String.valueOf(pokemonId)});
         while (cursorResistances.moveToNext()) {
             pokemonResistances.add(new PokemonTypeResistancesData(
-                    new PokemonTypeData(PokemonTypes.valueOf(cursorResistances.getString(0)),cursorResistances.getInt(1)),
+                    new PokemonTypeData(PokemonTypes.valueOf(cursorResistances.getString(0)), cursorResistances.getInt(1)),
                     cursorResistances.getDouble(2)
             ));
         }

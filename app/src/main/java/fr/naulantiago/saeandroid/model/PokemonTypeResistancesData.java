@@ -2,7 +2,7 @@ package fr.naulantiago.saeandroid.model;
 
 public class PokemonTypeResistancesData
 {
-    private enum DamageRelation
+    public enum DamageRelation
     {
         VULNERABLE,
         NEUTRAL,
