@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     private final String LAST_POKEMON_INFOS = "LAST_POKEMON_INFOS";
     private final String LAST_POKEMON_INFOS_ID = "LAST_POKEMON_INFOS_ID";
     private final int PERMISSION_NOTIFICATION_ID = 546;
-    private final int QUIT_NOTIFICATION_ID = 540;
     private final String NOTIFICATION_PKM_ID = "PKM_ID";
     public MainActivity() {
         db = new Database(this, this);
@@ -152,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 sendNotification();
             } else {
-                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "La permission a été refusée :(", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -162,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
             List<MinimalPokemonInfo> notificationPokemons = minimalPokemonInfos.stream().filter(el -> el.getId() == id || el.getId() == id + 1).collect(Collectors.toList());
             String pokemon1 = notificationPokemons.get(0).getName();
             String pokemon2 = notificationPokemons.get(1).getName();
-            String outputString = "Vous avez regardé " + pokemon1 + "vous aprécirez peut-être aussi " + pokemon2 + " clickez sur la notification pour plus de détails";
+            String outputString = "Vous avez regardé " + pokemon1 + " vous aprécirez peut-être aussi " + pokemon2 + " clickez sur la notification pour plus de détails";
 
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra(NOTIFICATION_PKM_ID,notificationPokemons.get(1).getId());

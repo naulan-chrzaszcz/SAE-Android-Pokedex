@@ -17,7 +17,6 @@ public class PokemonData
     private final int special_attack;
     private final int special_defense;
     private final int speed;
-    // types
     private final List<PokemonTypeData> types;
 
     private final List<PokemonTypeResistancesData> resistances;
