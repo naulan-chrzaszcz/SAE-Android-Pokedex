@@ -37,4 +37,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    api 'com.otaliastudios:cameraview:2.7.2'
 }

@@ -210,13 +210,13 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
         return null;
     }
 
-    public byte[] getByteArray(Bitmap bm) {
+    public static byte[] getByteArray(Bitmap bm) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return stream.toByteArray();
     }
 
-    public Bitmap getBitmap(byte[] bytes) {
+    public static Bitmap getBitmap(byte[] bytes) {
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
 

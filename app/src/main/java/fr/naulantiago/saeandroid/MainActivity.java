@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     private final String LAST_POKEMON_INFOS_ID = "LAST_POKEMON_INFOS_ID";
     private final int PERMISSION_NOTIFICATION_ID = 546;
     private final int PERMISSION_CAMERA_ID = 500;
+    private final int PERMISSION_EXTERNAL_ID = 357;
     private final String NOTIFICATION_PKM_ID = "PKM_ID";
     public static boolean isOnAnotherActivity;
     private Button floatingButton;
@@ -167,9 +168,23 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
             } else {
                 Toast.makeText(this, "La permission a été refusée :(", Toast.LENGTH_SHORT).show();
             }
-        } if (requestCode == PERMISSION_CAMERA_ID) {
+        }
+        if (requestCode == PERMISSION_CAMERA_ID) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startCameraActivity();
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                    startCameraActivity();
+                else
+                    ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, PERMISSION_EXTERNAL_ID);
+            } else {
+                Toast.makeText(this, "La permission a été refusée :(", Toast.LENGTH_SHORT).show();
+            }
+        }
+        if (requestCode == PERMISSION_EXTERNAL_ID) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
+                    startCameraActivity();
+                else
+                    ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA }, PERMISSION_CAMERA_ID);
             } else {
                 Toast.makeText(this, "La permission a été refusée :(", Toast.LENGTH_SHORT).show();
             }
@@ -209,8 +224,10 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
         return v -> {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
                 ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA }, PERMISSION_CAMERA_ID);
+            else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, PERMISSION_EXTERNAL_ID);
             else
-                startCameraActivity();
+            startCameraActivity();
         };
     }
 

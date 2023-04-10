@@ -1,20 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/camera_preview"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <SurfaceView
-        android:id="@+id/surfaceView"
+    <com.otaliastudios.cameraview.CameraView
+        android:id="@+id/camera"
+        android:keepScreenOn="true"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:cameraAudio="off">
 
-    <Button
-        android:id="@+id/capture_button"
-        android:layout_width="wrap_content"
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="top|start"
+            android:src="@drawable/image_overlay" />
+
+    </com.otaliastudios.cameraview.CameraView>
+
+    <LinearLayout
+        android:id="@+id/button_layout"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Capture"
-        android:layout_gravity="center_horizontal|bottom"/>
+        android:layout_gravity="bottom|center_horizontal"
+        android:padding="10dp"
+        android:gravity="center">
 
+        <Button
+            android:id="@+id/btn_take_picture"
+            android:text="Prendre la photo"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btn_switch_camera"
+            android:text="Changer de camera"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/button_quit_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:minHeight="60dp"
+            android:text="Retour" />
+    </LinearLayout>
 </FrameLayout>
-
