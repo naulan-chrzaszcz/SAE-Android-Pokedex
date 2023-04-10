@@ -129,9 +129,11 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        int pkmId = intent.getExtras().getInt(NOTIFICATION_PKM_ID);
-        startDetailActivity(pkmId);
-        intent.removeExtra(NOTIFICATION_PKM_ID);
+        if (intent.hasExtra(NOTIFICATION_PKM_ID)){
+            int pkmId = intent.getExtras().getInt(NOTIFICATION_PKM_ID);
+            startDetailActivity(pkmId);
+            intent.removeExtra(NOTIFICATION_PKM_ID);
+        }
     }
     private View.OnClickListener createOnclickListener(int id) {
         return v -> {
