@@ -1,5 +1,6 @@
 package fr.naulantiago.saeandroid;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -37,9 +38,10 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     private final String LAST_POKEMON_INFOS = "LAST_POKEMON_INFOS";
     private final String LAST_POKEMON_INFOS_ID = "LAST_POKEMON_INFOS_ID";
     private final int PERMISSION_NOTIFICATION_ID = 546;
+    private final int PERMISSION_CAMERA_ID = 500;
     private final String NOTIFICATION_PKM_ID = "PKM_ID";
+    private boolean isOnAnotherActivity;
     private Button floatingButton;
-
     public MainActivity() {
         db = new Database(this, this);
     }
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
         if (db.getNumbersOfPokemons() < 151)
             db.initInsertIfNewDB();
         else addPokemon();
+        isOnAnotherActivity = false;
 
         if (getIntent().hasExtra(NOTIFICATION_PKM_ID)) {
             int pkmId = getIntent().getIntExtra(NOTIFICATION_PKM_ID, 0);
@@ -61,14 +64,8 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
 
         // Initialiser le bouton flottant
         floatingButton = findViewById(R.id.floating_button);
-        floatingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Lancer l'activité CameraActivity lorsque le bouton est cliqué
-                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-                startActivity(intent);
-            }
-        });
+
+        floatingButton.setOnClickListener(createCameraOnclick());
     }
 
     @Override
@@ -78,10 +75,10 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
 
     @Override
     protected void onStop() {
-        super.onStop();
-        if (isFinishing()) {
+        if (!isOnAnotherActivity) {
             sendNotification();
         }
+        super.onStop();
     }
 
     @Override
@@ -142,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
         };
     }
     private void startDetailActivity(int id) {
+        isOnAnotherActivity = true;
         newLastPokemonSeen(id);
         Intent pkmDescIntent = new Intent(MainActivity.this, PokemonDescribeActivity.class);
         pkmDescIntent.putExtra("id", id);
@@ -164,6 +162,12 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
         if (requestCode == PERMISSION_NOTIFICATION_ID) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 sendNotification();
+            } else {
+                Toast.makeText(this, "La permission a été refusée :(", Toast.LENGTH_SHORT).show();
+            }
+        } if (requestCode == PERMISSION_CAMERA_ID) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startCameraActivity();
             } else {
                 Toast.makeText(this, "La permission a été refusée :(", Toast.LENGTH_SHORT).show();
             }
@@ -197,5 +201,19 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
                 notificationManager.notify(id, builder.build());
             }
         }
+    }
+
+    private View.OnClickListener createCameraOnclick() {
+        return v -> {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA }, PERMISSION_CAMERA_ID);
+            else
+                startCameraActivity();
+        };
+    }
+
+    private void startCameraActivity() {
+        Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+        startActivity(intent);
     }
 }
