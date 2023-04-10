@@ -1,7 +1,12 @@
 package fr.naulantiago.saeandroid;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +24,7 @@ public class PokemonDescribeActivity extends AppCompatActivity
 {
     private int pokemonId;
     private PokemonData pokemonData;
+    private static final String messageString = "Salut, j'ai trouvé un pokémon qui pourrais t'intérresser, il s'apelle %s, je te laisse voir sa description sur inernet mais personellement je l'aime vraiment bien! ";
 
     private ImageView sprite;
     private TextView id;
@@ -51,11 +57,13 @@ public class PokemonDescribeActivity extends AppCompatActivity
     private TextView resistanceFee;
 
     private TextToSpeech tts;
+    private Button shareButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pokemon_describe);
+        this.shareButton = findViewById(R.id.share);
         this.pokemonId = getIntent().getExtras().getInt("id");
         this.pokemonData = MainActivity.db.getPokemonData(this.pokemonId);
         MainActivity.isOnAnotherActivity = true;
@@ -179,6 +187,23 @@ public class PokemonDescribeActivity extends AppCompatActivity
                     break;
             }
         }
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String message =String.format(messageString,pokemonData.getName());
+
+                Intent shareIntent = new Intent(Intent.ACTION_SENDTO);
+                shareIntent.setData(Uri.parse("sms:"));
+                shareIntent.putExtra("sms_body", message);
+
+                PackageManager pm = getPackageManager();
+                if (shareIntent.resolveActivity(pm) != null) {
+                    startActivity(shareIntent);
+                } else {
+                    Toast.makeText(PokemonDescribeActivity.this, "No messaging app found", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override
