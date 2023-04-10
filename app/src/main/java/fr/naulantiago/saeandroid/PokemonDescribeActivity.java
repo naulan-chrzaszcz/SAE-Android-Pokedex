@@ -66,15 +66,17 @@ public class PokemonDescribeActivity extends AppCompatActivity
         this.name.setText(this.pokemonData.getName());
         this.tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
-            public void onInit(int i) {
-                tts.setLanguage(Locale.FRANCE);
-                tts.setSpeechRate(1.f);
-                tts.setPitch(1.f);
-                int queueMode = TextToSpeech.QUEUE_FLUSH; // Texte précédent arrêté avant la lecture
-                Bundle params = new Bundle();
-                params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, String.valueOf(pokemonData.getId())); // Identifiant du message pour le suivi de l'état
-                String utteranceId = this.hashCode() + String.valueOf(pokemonData.getId()); // Identifiant de l'activité
-                tts.speak(pokemonData.getName(), queueMode, params, utteranceId);
+            public void onInit(int status) {
+                if(status == TextToSpeech.SUCCESS) {
+                    int result = tts.setLanguage(Locale.ENGLISH);
+                    if(result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
+                        int queueMode = TextToSpeech.QUEUE_FLUSH; // Texte précédent arrêté avant la lecture
+                        Bundle params = new Bundle();
+                        params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, String.valueOf(pokemonData.getId())); // Identifiant du message pour le suivi de l'état
+                        String utteranceId = this.hashCode() + String.valueOf(pokemonData.getId()); // Identifiant de l'activité
+                        tts.speak(pokemonData.getName(), queueMode, params, utteranceId);
+                    } else System.out.println("English not supported");
+                }
             }
         });
         this.type_0 = findViewById(R.id.type_0);
@@ -179,6 +181,6 @@ public class PokemonDescribeActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        tts.shutdown();
+        this.tts.shutdown();
     }
 }
