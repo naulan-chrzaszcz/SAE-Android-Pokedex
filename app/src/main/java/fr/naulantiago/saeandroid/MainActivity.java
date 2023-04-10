@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     private final int PERMISSION_NOTIFICATION_ID = 546;
     private final int PERMISSION_CAMERA_ID = 500;
     private final String NOTIFICATION_PKM_ID = "PKM_ID";
-    private boolean isOnAnotherActivity;
+    public static boolean isOnAnotherActivity;
     private Button floatingButton;
     public MainActivity() {
         db = new Database(this, this);
@@ -54,8 +54,6 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
         if (db.getNumbersOfPokemons() < 151)
             db.initInsertIfNewDB();
         else addPokemon();
-        isOnAnotherActivity = false;
-
         if (getIntent().hasExtra(NOTIFICATION_PKM_ID)) {
             int pkmId = getIntent().getIntExtra(NOTIFICATION_PKM_ID, 0);
             startDetailActivity(pkmId);
@@ -75,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
 
     @Override
     protected void onStop() {
+        System.out.println(isOnAnotherActivity);
         if (!isOnAnotherActivity) {
             sendNotification();
         }
@@ -146,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
         Intent pkmDescIntent = new Intent(MainActivity.this, PokemonDescribeActivity.class);
         pkmDescIntent.putExtra("id", id);
         startActivity(pkmDescIntent);
+        isOnAnotherActivity = false;
     }
 
     private void newLastPokemonSeen(int id) {
@@ -217,5 +217,11 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     private void startCameraActivity() {
         Intent intent = new Intent(MainActivity.this, CameraActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isOnAnotherActivity = false;
     }
 }

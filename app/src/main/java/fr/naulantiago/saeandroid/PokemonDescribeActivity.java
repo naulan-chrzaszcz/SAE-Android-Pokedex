@@ -58,6 +58,7 @@ public class PokemonDescribeActivity extends AppCompatActivity
         setContentView(R.layout.activity_pokemon_describe);
         this.pokemonId = getIntent().getExtras().getInt("id");
         this.pokemonData = MainActivity.db.getPokemonData(this.pokemonId);
+        MainActivity.isOnAnotherActivity = true;
 
         Toast.makeText(this,"Vous regardez actuellement la description de " + pokemonData.getName(),Toast.LENGTH_LONG).show();
         this.id = findViewById(R.id.id);
