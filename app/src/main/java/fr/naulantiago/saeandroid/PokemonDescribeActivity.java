@@ -1,12 +1,14 @@
 package fr.naulantiago.saeandroid;
 
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
+import java.util.Locale;
 
 import fr.naulantiago.saeandroid.model.PokemonData;
 import fr.naulantiago.saeandroid.model.PokemonTypeData;
@@ -47,6 +49,8 @@ public class PokemonDescribeActivity extends AppCompatActivity
     private TextView resistanceTenebres;
     private TextView resistanceFee;
 
+    private TextToSpeech tts;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +64,19 @@ public class PokemonDescribeActivity extends AppCompatActivity
         this.sprite.setImageBitmap(this.pokemonData.getSprite());
         this.name = findViewById(R.id.name);
         this.name.setText(this.pokemonData.getName());
+        this.tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int i) {
+                tts.setLanguage(Locale.FRANCE);
+                tts.setSpeechRate(1.f);
+                tts.setPitch(1.f);
+                int queueMode = TextToSpeech.QUEUE_FLUSH; // Texte précédent arrêté avant la lecture
+                Bundle params = new Bundle();
+                params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, String.valueOf(pokemonData.getId())); // Identifiant du message pour le suivi de l'état
+                String utteranceId = this.hashCode() + String.valueOf(pokemonData.getId()); // Identifiant de l'activité
+                tts.speak(pokemonData.getName(), queueMode, params, utteranceId);
+            }
+        });
         this.type_0 = findViewById(R.id.type_0);
         List<PokemonTypeData> types = this.pokemonData.getTypes();
         this.type_0.setImageBitmap(types.get(0).getImg());
@@ -157,5 +174,11 @@ public class PokemonDescribeActivity extends AppCompatActivity
                     break;
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        tts.shutdown();
     }
 }
