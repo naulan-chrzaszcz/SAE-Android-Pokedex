@@ -9,6 +9,7 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     private final int PERMISSION_NOTIFICATION_ID = 546;
     private final int QUIT_NOTIFICATION_ID = 546;
     private final String NOTIFICATION_PKM_ID = "PKM_ID";
+    private Button floatingButton;
+
     public MainActivity() {
         db = new Database(this, this);
     }
@@ -55,6 +58,17 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
             int pkmId = getIntent().getExtras().getInt(NOTIFICATION_PKM_ID);
             startDetailActivity(pkmId);
         }
+
+        // Initialiser le bouton flottant
+        floatingButton = findViewById(R.id.floating_button);
+        floatingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Lancer l'activité CameraActivity lorsque le bouton est cliqué
+                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

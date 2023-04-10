@@ -41,4 +41,5 @@
     <string name="type1">type1</string>
     <string name="type0">type0</string>
     <string name="sprite">sprite</string>
+    <string name="overlay">overlay</string>
 </resources>
