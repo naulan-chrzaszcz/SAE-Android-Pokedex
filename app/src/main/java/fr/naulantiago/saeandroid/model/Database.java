@@ -50,11 +50,12 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     public Database(Context context, StatusCallback statusCallback) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.callBack = statusCallback;
-        this.pokemonAPI = new FetchPokemons();
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        this.pokemonAPI = new FetchPokemons();
+
         String script_type = "CREATE TABLE IF NOT EXISTS " + TABLE_TYPE + "(" +
                 COLUMN_TYPE_ID + " INTEGER PRIMARY KEY," +
                 COLUMN_TYPE_NAME + " VARCHAR(20)," +
@@ -244,8 +245,8 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
 
         String queryResistances = "SELECT t."+COLUMN_TYPE_NAME+" , t."+COLUMN_TYPE_ID+" , r."+COLUMN_RESISTANCE_DAMAGE_MULTIPLIER+ " " +
         "FROM " + TABLE_POKEMON + " p " +
-        "LEFT JOIN " + TABLE_TYPE + " t ON p." + COLUMN_POKEMON_TYPE1 + " = t." + COLUMN_TYPE_ID + " OR p." + COLUMN_POKEMON_TYPE2 + " = t." + COLUMN_TYPE_ID + " " +
         "LEFT JOIN " + TABLE_RESISTANCE + " r ON p." + COLUMN_POKEMON_ID + " = r." + COLUMN_RESISTANCE_POKEMON_ID + " " +
+        "LEFT JOIN " + TABLE_TYPE + " t ON r." + COLUMN_RESISTANCE_TYPE_ID + " = t." + COLUMN_TYPE_ID + " " +
         "WHERE p." + COLUMN_POKEMON_ID + " = ?";
 
         String queryEvolutions = "SELECT " + COLUMN_EVOLUTIONS_PKM_EVOLUTION +
