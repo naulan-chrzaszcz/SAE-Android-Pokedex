@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     private final String LAST_POKEMON_INFOS = "LAST_POKEMON_INFOS";
     private final String LAST_POKEMON_INFOS_ID = "LAST_POKEMON_INFOS_ID";
     private final int PERMISSION_NOTIFICATION_ID = 546;
-    private final int QUIT_NOTIFICATION_ID = 546;
     private final String NOTIFICATION_PKM_ID = "PKM_ID";
     private Button floatingButton;
 
@@ -54,9 +53,10 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
             db.initInsertIfNewDB();
         else addPokemon();
 
-        if (getIntent().getExtras() != null) {
-            int pkmId = getIntent().getExtras().getInt(NOTIFICATION_PKM_ID);
+        if (getIntent().hasExtra(NOTIFICATION_PKM_ID)) {
+            int pkmId = getIntent().getIntExtra(NOTIFICATION_PKM_ID, 0);
             startDetailActivity(pkmId);
+            getIntent().removeExtra(NOTIFICATION_PKM_ID);
         }
 
         // Initialiser le bouton flottant
@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
         super.onNewIntent(intent);
         int pkmId = intent.getExtras().getInt(NOTIFICATION_PKM_ID);
         startDetailActivity(pkmId);
+        intent.removeExtra(NOTIFICATION_PKM_ID);
     }
     private View.OnClickListener createOnclickListener(int id) {
         return v -> {
@@ -164,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 sendNotification();
             } else {
-                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "La permission a été refusée :(", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -174,11 +175,11 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
             List<MinimalPokemonInfo> notificationPokemons = minimalPokemonInfos.stream().filter(el -> el.getId() == id || el.getId() == id + 1).collect(Collectors.toList());
             String pokemon1 = notificationPokemons.get(0).getName();
             String pokemon2 = notificationPokemons.get(1).getName();
-            String outputString = "Vous avez regardé " + pokemon1 + "vous aprécirez peut-être aussi " + pokemon2 + " clickez sur la notification pour plus de détails";
+            String outputString = "Vous avez regardé " + pokemon1 + " vous aprécirez peut-être aussi " + pokemon2 + " clickez sur la notification pour plus de détails";
 
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra(NOTIFICATION_PKM_ID,notificationPokemons.get(1).getId());
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, QUIT_NOTIFICATION_ID, intent, PendingIntent.FLAG_MUTABLE);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, id, intent, PendingIntent.FLAG_IMMUTABLE);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NotificationApp.CHANNEL_PKM)
                     .setSmallIcon(R.drawable.ic_launcher_foreground)
@@ -187,14 +188,13 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
                             .bigText(outputString))
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setContentIntent(pendingIntent)
-                    .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                     .setAutoCancel(true);
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.POST_NOTIFICATIONS }, PERMISSION_NOTIFICATION_ID);
             } else {
-                notificationManager.notify(QUIT_NOTIFICATION_ID, builder.build());
+                notificationManager.notify(id, builder.build());
             }
         }
     }

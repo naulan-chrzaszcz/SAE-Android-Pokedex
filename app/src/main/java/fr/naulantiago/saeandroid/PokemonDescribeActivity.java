@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -58,6 +59,7 @@ public class PokemonDescribeActivity extends AppCompatActivity
         this.pokemonId = getIntent().getExtras().getInt("id");
         this.pokemonData = MainActivity.db.getPokemonData(this.pokemonId);
 
+        Toast.makeText(this,"Vous regardez actuellement la description de " + pokemonData.getName(),Toast.LENGTH_LONG).show();
         this.id = findViewById(R.id.id);
         this.id.setText(String.valueOf(this.pokemonData.getId()));
         this.sprite = findViewById(R.id.sprite);
