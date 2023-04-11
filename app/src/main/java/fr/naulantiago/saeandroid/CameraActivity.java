@@ -11,12 +11,8 @@ import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.otaliastudios.cameraview.CameraListener;
@@ -49,26 +45,9 @@ public class CameraActivity extends AppCompatActivity {
 
         camera.setLifecycleOwner(this);
 
-        takePictureBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                camera.takePicture();
-            }
-        });
-
-        switchCameraBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                camera.toggleFacing();
-            }
-        });
-
-        quitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        takePictureBtn.setOnClickListener(v -> camera.takePicture());
+        switchCameraBtn.setOnClickListener(v -> camera.toggleFacing());
+        quitButton.setOnClickListener(v -> finish());
 
         camera.addCameraListener(new CameraListener() {
             @Override
