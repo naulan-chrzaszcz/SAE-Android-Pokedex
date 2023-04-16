@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -56,14 +57,14 @@ public class CameraActivity extends AppCompatActivity {
 
                 new AlertDialog.Builder(CameraActivity.this)
                         .setTitle("Save picture")
-                        .setMessage("Do you want to keep this picture?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        .setMessage("voulez-vous garder cett image?")
+                        .setPositiveButton("Oui", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 savePicture(jpeg);
                             }
                         })
-                        .setNegativeButton("No", null)
+                        .setNegativeButton("Non", null)
                         .show();
             }
         });
@@ -101,5 +102,6 @@ public class CameraActivity extends AppCompatActivity {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         mediaScanIntent.setData(uri);
         sendBroadcast(mediaScanIntent);
+        Toast.makeText(getApplicationContext(), "Image sauvegardée a cet emplacement " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
     }
 }
