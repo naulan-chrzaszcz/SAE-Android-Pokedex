@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     private final String NOTIFICATION_PKM_ID = "PKM_ID";
     public static boolean isOnAnotherActivity;
     private Button floatingButton;
+    private boolean isDbReady = false;
+
     public MainActivity() {
         db = new Database(this, this);
     }
@@ -91,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     }
 
     public void addPokemon() {
+        isDbReady = true;
         if (minimalPokemonInfos == null)
             minimalPokemonInfos = db.getMinimalPokemonInfos();
         WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
@@ -192,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
     }
     private void sendNotification() {
         int id = getLastPokemonSeen();
-        if (id > 0 && id < 150) {
+        if (id > 0 && id < 150 && isDbReady) {
             List<MinimalPokemonInfo> notificationPokemons = minimalPokemonInfos.stream().filter(el -> el.getId() == id || el.getId() == id + 1).collect(Collectors.toList());
             String pokemon1 = notificationPokemons.get(0).getName();
             String pokemon2 = notificationPokemons.get(1).getName();

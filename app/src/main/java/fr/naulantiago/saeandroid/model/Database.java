@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class Database extends SQLiteOpenHelper implements StatusCallback {
+public class Database extends SQLiteOpenHelper {
     private List<PokemonData> pokemonDatas;
     private Set<PokemonTypeData> pokemonTypes;
     private FetchPokemons pokemonAPI;
@@ -50,6 +50,7 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
     public Database(Context context, StatusCallback statusCallback) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.callBack = statusCallback;
+        this.context = context;
     }
 
     @Override
@@ -110,6 +111,9 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
 
     public void initInsertIfNewDB() {
         SQLiteDatabase db = this.getWritableDatabase();
+        clearDatabase(db);
+        if (this.pokemonAPI == null)
+            this.pokemonAPI = new FetchPokemons();
         this.pokemonAPI.waitFetchFinish();
         this.pokemonDatas = this.pokemonAPI.getPokemonDatas();
         this.pokemonTypes = this.pokemonAPI.getPkmTypes();
@@ -181,15 +185,6 @@ public class Database extends SQLiteOpenHelper implements StatusCallback {
             values.put(COLUMN_RESISTANCE_DAMAGE_MULTIPLIER,resistance.getDamageMultiplier());
 
             db.insert(TABLE_RESISTANCE,null,values);
-        }
-    }
-
-    @Override
-    public void statusChange(int status) {
-        if (status == 1 ) {
-            initInsertIfNewDB();
-        } else if (status == -1) {
-
         }
     }
 
