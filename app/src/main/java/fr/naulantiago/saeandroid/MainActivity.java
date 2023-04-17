@@ -76,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
 
     @Override
     protected void onStop() {
-        System.out.println(isOnAnotherActivity);
         if (!isOnAnotherActivity) {
             sendNotification();
         }
@@ -225,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements StatusCallback {
 
     private View.OnClickListener createCameraOnclick() {
         return v -> {
+            isOnAnotherActivity = true;
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
                 ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA }, PERMISSION_CAMERA_ID);
             else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
